@@ -1,0 +1,13 @@
+# WORKSPACE
+/.vscode/
+/.backup/
+/res/images/user-uploaded/
+/php/git-pull.php
+
+# LOGS
+*.log
+*.txt
+
+# LOCAL CONFIGS
+/php/connection.php
+.htaccess
