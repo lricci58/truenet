@@ -5,74 +5,77 @@ import * as loadingScreen from './modules/loading-screen.js';
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('web-title').innerHTML = 'Investment';
 
-    const investments = async.get({
+    const fetchList = {}
+
+    fetchList.investments = async.get({
         url: '/php/get/investments.php',
         method: 'POST'
     });
+
+    fetchList.currentValues = getcurrentValues();
 
     // waits for document to load base promises
     documentChecker.isReady().then((loadedSuccessfully) => {
         if (!loadedSuccessfully) return;
 
-        const fetchList = {
-            'investments': investments
-        }
-
         async.waitForAll(fetchList).then((result) => {
-            const fetchToken = () => {
-                return async.get({
-                    url: 'https://api.invertironline.com/token',
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    data: {
-                        grant_type: 'password',
-                        username: 'lucric2001@gmail.com',
-                        password: 'C4r*Tu*Ch3*R4*I'
-                    }
-                }).then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch token');
-                    }
-                    return response.json();
-                }).then(data => data.token);
-            }
-
-            const fetchSymbol = (market, symbol) => {
-                return fetchToken().then((token) => {
-                    console.log(token);
-                    return async.get({
-                        url: `https://api.invertironline.com/api/${market}/Titulos/${symbol}/Cotizacion`,
-                        // url: `https://api.invertironline.com/api/v2/${market}/Titulos/${symbol}`,
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6ImF0K2p3dCJ9.eyJzdWIiOiIyODI1MTAwIiwiSUQiOiIyODI1MTAwIiwianRpIjoiYjIwMGFhNDAtYzYzZC00YzczLTk4NzItY2FkYWVkMGYxYjJhIiwiY29uc3VtZXJfdHlwZSI6IjEiLCJ0aWVuZV9jdWVudGEiOiJUcnVlIiwidGllbmVfcHJvZHVjdG9fYnVyc2F0aWwiOiJUcnVlIiwidGllbmVfcHJvZHVjdG9fYXBpIjoiVHJ1ZSIsInRpZW5lX1R5QyI6IkZhbHNlIiwibmJmIjoxNzMyOTE3MTEyLCJleHAiOjE3MzI5MTgwMTIsImlhdCI6MTczMjkxNzExMiwiaXNzIjoiSU9MT2F1dGhTZXJ2ZXIiLCJhdWQiOiJJT0xPYXV0aFNlcnZlciJ9.goAm3cXwGOi0xfnEp9ELuseyEWzjspX3SDN_GMYU6aj08koq-VMJdoICsGz-02AdQTCxhVi25ft7zlFZ-xGBpkPX3W1pcnA8V7UsETusLI9i3V_r6bfAY5RQlFrOr9uXydavrmAnaAL9PP4zQ-HAOTJ9tIlDGl0DnqeJmWYFiZQ5vooq13jH_E6PpFO6yP791c2p9_SJqG9qyGmiG0pfKTL-ceyIp5mgn6X2RfsalCEsiFdCkxP7tPkQObJikPgTV0qP9K4NWob4Q-zUeh8aFAmBZSLVBt3XTj9dJtfhvoAUh1aGEdCyZO9jP7Oylfc2icLZd2A72zVSPwyTYBSvoQ`
-                        }
-                    });
-                }).then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch symbol');
-                    }
-                    return response.json(); // Return the symbol data
-                });;
-            }
-
-            const symboldData = fetchSymbol('bCBA', 'YPFD');
-            console.log(symboldData);
-
             loadInvestments(result['investments']);
-            calculateTWR(result['investments'].reverse());
+            calculateTWR(result['investments'].reverse(), result['currentValues']);
 
             loadingScreen.hide();
         });
     });
 });
 
+function getcurrentValues() {
+    const fetchToken = () => {
+        return async.get({
+            url: '/php/proxy.php',
+            method: 'POST',
+        }).then(response => {
+            if (!response.access_token) {
+                throw new Error('Failed to fetch token');
+            }
+            return response.access_token;
+        });
+    }
+
+    return fetchToken().then((token) => {
+        const fetchList = {}
+
+        fetchList.cedears = async.get({
+            url: `https://api.invertironline.com/api/Cotizaciones/acciones/CEDEARs/argentina`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        fetchList.acciones = async.get({
+            url: `https://api.invertironline.com/api/Cotizaciones/acciones/Merval Argentina/argentina`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return async.waitForAll(fetchList).then((result) => {
+            const jointList = [...result.cedears.titulos, ...result.acciones.titulos];
+            const tickerMappedList = {};
+            jointList.forEach(item => {
+                const ticker = item.simbolo;
+                tickerMappedList[ticker] = parseFloat(item.ultimoPrecio);
+            });
+            return tickerMappedList;
+        });
+    });
+}
+
 function loadInvestments(investments) {
-    console.log(investments);
-    // load to UI
+    // @TODO: load to UI
+    // console.log(investments);
 }
 
 function parseDate(dateStr) {
@@ -112,17 +115,17 @@ function getClosestQuote(investmentDate, cclQuotes) {
     return closestQuote;
 }
 
-async function calculateTWR(orderedInvestments) {
+async function calculateTWR(orderedInvestments, currentValues) {
     const firstInvestmentDate = orderedInvestments[0]['date'];
-    const lastInvestmentDate = orderedInvestments.slice(-1)[0]['date'];
+    const lastInvestmentDate = new Date().toISOString().split('T')[0];
     const cclRequest = async.get({
         url: `https://mercados.ambito.com//dolarrava/cl/grafico/${firstInvestmentDate}/${lastInvestmentDate}`,
         method: 'GET',
         contentType: false
     });
-    const cclQuotesList = (await cclRequest.then(result => { return result })).sort((a, b) => parseDate(a[0]) - parseDate(b[0])).slice(1);
+    const cclQuotesList = (await cclRequest.then(result => { return result })).slice(1);
 
-    let subperiodList = {};
+    const subperiodList = {};
     for (const investment of orderedInvestments) {
         const { ticker, operation, shares, cost_per_share, date } = investment;
 
@@ -138,8 +141,7 @@ async function calculateTWR(orderedInvestments) {
                 subperiods: [],
                 currVN: 0,
                 prevVN: 0,
-                count: 0,
-                capital: 0
+                count: 0
             }
         }
 
@@ -148,7 +150,6 @@ async function calculateTWR(orderedInvestments) {
 
         const startValue = costPerShare * tickerData.prevVN;
         const cashflow = sharesOperated * costPerShare * factor;
-        tickerData.capital = startValue;
 
         tickerData.subperiods.push({
             startValue,
@@ -179,20 +180,23 @@ async function calculateTWR(orderedInvestments) {
             const { startValue, endValue, cashflow } = subperiod;
             const ponderatedCashflow = startValue + cashflow;
 
-            let subperiodReturn = ponderatedCashflow === 0 ? 0 : (endValue - ponderatedCashflow) / ponderatedCashflow;
-
-            if (subperiodReturn == -1) continue; // @temp, will not be needed when we have the current stock value
+            const subperiodReturn = ponderatedCashflow === 0 ? 0 : (endValue - ponderatedCashflow) / ponderatedCashflow;
 
             twr *= (1 + subperiodReturn)
         }
         return twr - 1;
     }
 
+    const cclQuote = getClosestQuote(lastInvestmentDate, cclQuotesList)[1];
+
     let portfolioValue = 0;
     for (const ticker in subperiodList) {
         const tickerData = subperiodList[ticker];
         if (!tickerData) continue;
-        portfolioValue += tickerData.capital;
+        const lastSubperiod = tickerData.subperiods.slice(-1)[0];
+        const costPerShare = currentValues[ticker] / cclQuote;
+        lastSubperiod.endValue = costPerShare * tickerData.currVN;
+        portfolioValue += lastSubperiod.endValue;
     }
 
     let porfolioReturns = 0;
@@ -200,9 +204,15 @@ async function calculateTWR(orderedInvestments) {
         const tickerData = subperiodList[ticker];
         if (!tickerData) continue;
 
-        const investmentWeight = tickerData.capital / portfolioValue;
+        const costPerShare = currentValues[ticker] / cclQuote;
+        const investmentWeight = costPerShare / portfolioValue;
         const investmentTWR = getInvestmentTWR(ticker);
         porfolioReturns += (investmentTWR * investmentWeight);
+
+        // @TODO: load each twr for each ticker
+        console.log(`${ticker}: %${(investmentTWR * 100).toFixed(2)}`)
     }
+
+    // @TODO: load total twr for the portfolio
     console.log(`Total porfolio returns: %${(porfolioReturns * 100).toFixed(2)}`);
 }
