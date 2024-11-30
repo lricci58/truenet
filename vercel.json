@@ -4,8 +4,7 @@
             "source": "/:path(.*)",
             "has": [
                 {
-                    "type": "filesystem",
-                    "negate": true
+                    "type": "filesystem"
                 }
             ],
             "destination": "/views/:path.html"
