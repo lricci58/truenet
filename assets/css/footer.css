@@ -1,0 +1,14 @@
+#footer {
+    --_footer-height: 84px;
+
+    background-color: var(--bg-clr-dark-1);
+    min-height: var(--_footer-height);
+    padding: var(--general-padding);
+
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+@media (width>1024px) {}

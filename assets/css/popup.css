@@ -1,0 +1,98 @@
+.popup-modal {
+    background-color: var(--popup-modal-clr);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-out;
+}
+
+.popup-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.popup-container {
+    width: clamp(300px, 80%, 500px);
+    padding: 1em;
+    background: var(--popup-container-clr);
+    border-radius: var(--border-radius);
+    box-shadow:
+        -1px 5px 5px 2px var(--boxshadow-color),
+        1px 5px 5px 2px var(--boxshadow-color),
+        0px 5px 5px 2px var(--boxshadow-color);
+}
+
+#popup-title {
+    color: var(--popup-title-clr);
+    font-size: 1.35em;
+    font-weight: 500;
+    text-align: start;
+}
+
+#popup-text {
+    color: var(--popup-text-clr);
+    font-size: 1.15em;
+    text-align: justify;
+    text-align-last: start;
+}
+
+.popup-actions {
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1.25em;
+    display: flex;
+    gap: 0.5em;
+}
+
+.popup-actions .cancel,
+.popup-actions .continue {
+    padding: 0.5em 1.5em;
+    transition: all 0.1s ease-out;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: var(--border-radius);
+}
+
+.popup-actions .cancel {
+    color: var(--popup-button-clr-1);
+    background-color: var(--popup-button-clr-2);
+    border-color: var(--popup-button-clr-1);
+}
+
+.popup-actions .continue {
+    color: var(--popup-button-clr-2);
+    background-color: var(--popup-button-clr-1);
+    border-color: var(--popup-button-clr-1);
+}
+
+.popup-actions .cancel:hover {
+    color: var(--popup-button-clr-2);
+    background-color: var(--popup-button-hover-clr);
+    border-color: var(--popup-button-hover-clr);
+}
+
+.popup-actions .continue:hover {
+    background-color: var(--popup-button-hover-clr);
+    border-color: var(--popup-button-hover-clr);
+}
+
+@media (width>=768px) {
+    .popup-container {
+        padding: 1em 2em;
+    }
+
+    .popup-actions {
+        margin-right: unset;
+    }
+}

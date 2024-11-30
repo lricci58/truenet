@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Lucas Ricci">
+    <meta name="keywords"
+        content="personal finance, finance tracker, investment simulator, income tracking, spending tracker, cryptocurrency management, financial management tool, web app, money management, investment tracking, credit card tracking, financial statements, real-time share prices, open source finance tool, budget tracking">
+    <meta name="description"
+        content="Explore Money Map, a comprehensive tool for tracking personal finances. From income and spending to investment simulations and crypto management, streamline your financial monitoring with a custom-built web app using MySQL, HTML, CSS, and PHP. Currently in alpha, it's designed for private use, featuring a statement generator and real-time share data scraping. Join the journey of making finance management easier and more fun!">
+    <title id="web-title">Money Map | A Friendly Way of Keeping Track of Your Money</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/loading-screen.css">
+    <link rel="stylesheet" href="/assets/css/popup.css" async>
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/sidenav.css" async>
+    <link rel="stylesheet" href="/assets/css/footer.css" async>
+
+    <link rel="stylesheet" href="/assets/css/investment.css" async>
+
+    <!-- Schema Markup -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Money Map",
+            "description": "A comprehensive tool for tracking personal finances, including income, spending, investments, and crypto management.",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web",
+            "programmingLanguage": ["HTML", "CSS", "JavaScript", "PHP"],
+            "author": {
+            "@type": "Person",
+            "name": "Lucas Ricci"
+            },
+            "url": "https://yourprojecturl.com",
+            "license": "http://unlicense.org",
+            "keywords": "personal finance, finance tracker, investment simulator, income tracking, spending tracker, cryptocurrency management, financial management tool, budget tracking",
+            "potentialAction": {
+            "@type": "InstallAction",
+            "target": "https://github.com/lricci58/money-map"
+            }
+        }
+    </script>
+</head>
+
+<body class="scroller rounded">
+    <div id="loading-screen-modal">
+        <div class="loading-screen" id="loading-screen">
+            <svg id="spinner" class="spinner" viewBox="0 0 50 50">
+                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
+        </div>
+    </div>
+
+    <div id="popup" class="popup-modal">
+        <div class="popup-container">
+            <h2 id="popup-title">THIS ACTION WILL...</h2>
+            <p id="popup-text">Are you sure you want to continue?</p>
+
+            <div class="popup-actions">
+                <button id="popup-cancel-button" class="cancel clickable">CANCEL</button>
+                <button id="popup-continue-button" class="continue clickable">CONTINUE</button>
+            </div>
+        </div>
+    </div>
+
+    <header id="topnav" class="max-width-wrapper extend-bg"></header>
+
+    <div class="max-width-wrapper content-wrapper">
+        <nav id="sidenav"></nav>
+        <main class="page-content">
+            <h1 class="with-margin bottom">Investments</h1>
+
+            <div class="grid">
+                <!-- Return of every portfolio In USD (Charts, TWR, etc) with the possibility of hiding specific portfolios -->
+                <!-- Portfolio list available for opening -->
+                <!-- Specific portfolio summary (Charts, TWRs, Percentages, Tag Percentages, etc) -->
+
+                <!-- quick use buttons (for registering transactions) -->
+                <div class="grid-block quick-use">
+                    <h2 class="with-margin bottom">Quick Use</h2>
+                    <hr style="margin-top: 0;">
+                    <div class="quick-use-grid">
+                        <form class="form-group">
+                            <div class="child">
+                                <!-- dropdown for type -->
+                                <span class="custom-label type f-bubble smaller-text">Type</span>
+                                <div class="dropdown-wrapper type f-bubble">
+                                    <button class="dropdown-trigger f-bubble-child smaller-text"
+                                        type="button">Income</button>
+                                    <ul class="dropdown-list scroller">
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text selected"
+                                                type="button">Income</button></li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Expense</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Transfer Between
+                                                Accounts</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="child">
+                                <!-- dropdown for currency -->
+                                <div class="dropdown-wrapper currency f-bubble">
+                                    <button class="dropdown-trigger f-bubble-child smaller-text"
+                                        type="button">ARS</button>
+                                    <ul class="dropdown-list scroller">
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text selected"
+                                                type="button">ARS</button></li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">USD</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">USDT</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">NEXO</button>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- input for transaction value -->
+                                <label for="transaction-value-input" class="quick-use-label f-bubble">
+                                    <input id="transaction-value-input"
+                                        class="quick-use-input value f-bubble-child smaller-text" type="text"
+                                        placeholder="0.00">
+                                </label>
+
+                                <!-- dropdown for transaction type tags -->
+                                <!-- <div class="dropdown-wrapper transaction-type f-bubble">
+                                    <button class="dropdown-trigger f-bubble-child smaller-text"
+                                        type="button">Varible</button>
+                                    <ul class="dropdown-list scroller">
+                                        <li><button class="dropdown-button selected" type="button">Varible</button></li>
+                                        <li><button class="dropdown-button" type="button">Fixed</button></li>
+                                    </ul>
+                                </div> -->
+                            </div>
+
+                            <div class="child">
+                                <!-- dropdown for platform output -->
+                                <span class="custom-label f-bubble smaller-text">
+                                    From
+                                </span>
+                                <div class="dropdown-wrapper platform f-bubble">
+                                    <button class="dropdown-trigger f-bubble-child smaller-text" type="button">Mercado
+                                        Pago</button>
+                                    <ul class="dropdown-list scroller">
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text selected"
+                                                type="button">Mercado
+                                                Pago</button></li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">HSBC
+                                                AR</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">HSBC
+                                                US</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Belo</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Paypal</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Payoner</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Nexo</button>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- dropdown for platform input -->
+                                <span class="custom-label f-bubble smaller-text">
+                                    To
+                                </span>
+                                <div class="dropdown-wrapper platform f-bubble">
+                                    <button class="dropdown-trigger f-bubble-child smaller-text" type="button">Mercado
+                                        Pago</button>
+                                    <ul class="dropdown-list scroller">
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text selected"
+                                                type="button">Mercado
+                                                Pago</button></li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">HSBC
+                                                AR</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">HSBC
+                                                US</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Belo</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Paypal</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Payoner</button>
+                                        </li>
+                                        <li><button tabindex="-1" class="dropdown-button smaller-text"
+                                                type="button">Nexo</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="child">
+                                <!-- input concept -->
+                                <span class="custom-label f-bubble smaller-text">Concept</span>
+                                <label for="concept-input" class="quick-use-label f-bubble">
+                                    <input id="concept-input"
+                                        class="quick-use-input concept f-bubble-child smaller-text" type="text"
+                                        placeholder="Credit Card Payment">
+                                </label>
+                            </div>
+
+                            <button class="quick-use-button bubble smaller-text">+</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- monthly summary (total income, total expense, net compared to the previous month) -->
+                <div class="grid-block monthly-summary">
+                    <!-- currency toggle -->
+                    <h2 class="inline with-margin bottom">Transactions</h2>
+                    <h3 class="inline tiny-text with-margin">(September)</h3>
+                    <hr style="margin-top: 0;">
+                    <!-- <ul class="currency-toggle-list">
+                        <li class="currency-toggle toggled"><button>ARS</button></li>
+                        <li class="currency-toggle toggled"><button>USD</button></li>
+                        <li class="currency-toggle toggled"><button>USDT</button></li>
+                        <li class="currency-toggle"><button>USDC</button></li>
+                        <li class="currency-toggle toggled"><button>NEXO</button></li>
+                        <li class="currency-toggle"><button>BTC</button></li>
+                    </ul> -->
+
+                    <div class="summary-grid">
+                        <div class="summary-grid-column income">
+                            <h3 class="with-margin bottom">Income</h3>
+                            <ul class="money-bubble-group">
+                                <li class="text-bubble positive tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">ARS</span> +$ 156,661.75
+                                </li>
+                                <li class="text-bubble positive tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">USD</span> +$ 2,316.51
+                                </li>
+                                <li class="text-bubble positive tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">USDT</span> + 150.00
+                                </li>
+                                <li class="text-bubble positive tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">NEXO</span> + 62.15
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="summary-grid-column expenses">
+                            <h3 class="with-margin bottom">Expenses</h3>
+                            <ul class="money-bubble-group">
+                                <li class="text-bubble negative tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">ARS</span> -$ 171,661.75
+                                </li>
+                                <li class="text-bubble negative tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">USD</span> -$ 1,600.00
+                                </li>
+                                <li class="text-bubble negative tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">USDT</span> - 304.70
+                                </li>
+                                <li class="text-bubble tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">NEXO</span> - 0.00
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="summary-grid-column net">
+                            <h3 class="with-margin bottom">Net</h3>
+                            <ul class="money-bubble-group">
+                                <li class="text-bubble negative tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">ARS</span> -$ 15,000.00
+                                </li>
+                                <li class="text-bubble positive tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">USD</span> +$ 716.51
+                                </li>
+                                <li class="text-bubble negative tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">USDT</span> - 154.70
+                                </li>
+                                <li class="text-bubble positive tiny-text center-vertical">
+                                    <span class="outfit bold ignore-fs">NEXO</span> + 62.15
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- monthly savings + previous month's savings (net money earned in a month)  -->
+                <div class="grid-block monthly-savings">
+                    <h2 class="with-margin bottom">Monthly Savings</h2>
+                    <hr style="margin-top: 0;">
+                </div>
+
+                <div class="grid-block temp">
+                    <h2 class="with-margin bottom">Investments</h2>
+                    <hr style="margin-top: 0;">
+                </div>
+
+                <div class="grid-block temp">
+                    <h2 class="with-margin bottom">Credit Status</h2>
+                    <hr style="margin-top: 0;">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer id="footer" class="max-width-wrapper extend-bg"></footer>
+
+    <!-- JavaScript -->
+    <script src="/assets/js/index.js" type="module"></script>
+    <script src="/assets/js/investment.js" type="module" defer></script>
+</body>
+
+</html>

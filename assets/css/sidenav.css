@@ -1,0 +1,156 @@
+#sidenav {
+    --_sidenav-z-index: 90;
+    --_sidenav-animation-speed: 0.2s;
+    background-color: var(--bg-clr-2);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--_sidenav-z-index);
+    width: 0;
+
+    animation: sidenav-close-animation var(--_sidenav-animation-speed) forwards;
+}
+
+#sidenav.show {
+    animation: sidenav-open-animation var(--_sidenav-animation-speed) forwards;
+}
+
+#sidenav::after {
+    content: "";
+    border-right: 1px solid var(--text-clr-4);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: var(--_sidenav-z-index);
+}
+
+#sidenav::before {
+    content: "";
+    background-color: var(--modal-clr);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--_sidenav-z-index);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--_sidenav-animation-speed) ease-out;
+}
+
+#sidenav.show::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidenav-wrapper {
+    padding: calc(var(--general-padding) * 2) var(--general-padding);
+    position: sticky;
+    top: var(--topnav-height);
+    z-index: var(--_sidenav-z-index);
+}
+
+.main-sidenav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-x: hidden;
+}
+
+.extend-hr {
+    width: 100%;
+    margin: 0;
+    border: 1px solid var(--text-clr-4);
+}
+
+.anchor-wrapper {
+    display: block;
+    width: fit-content;
+    padding: 0.25em 0.5em;
+}
+
+li:has(.anchor-wrapper.selected) {
+    border-radius: var(--border-radius);
+    border-top-right-radius: unset;
+    border-bottom-right-radius: unset;
+    background-color: var(--bg-clr-light-1);
+}
+
+.anchor-wrapper h2 {
+    font-size: 1.25rem;
+}
+
+.anchor-wrapper h3 {
+    font-size: 1rem;
+}
+
+.anchor-wrapper:hover :is(h2, h3),
+.anchor-wrapper.focusable:focus :is(h2, h3) {
+    color: var(--primary-clr);
+}
+
+.anchor-wrapper :is(h2, h3) {
+    display: flex;
+    gap: calc(1.125em / 2);
+    color: var(--text-clr-4);
+    text-wrap: nowrap;
+    text-transform: uppercase;
+}
+
+.anchor-wrapper :is(h2, h3)::before {
+    content: "";
+    background-image: url(/assets/images/notification.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    display: block;
+    height: 1.125em;
+    width: 1.125em;
+}
+
+/* === ANIMATION === */
+
+@keyframes sidenav-open-animation {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 290px;
+    }
+}
+
+@keyframes sidenav-close-animation {
+    from {
+        width: 290px;
+    }
+
+    to {
+        width: 0;
+        border-right: none;
+    }
+}
+
+/* === MEDIA QUERY === */
+
+@media (width>1024px) {
+    #sidenav {
+        position: relative;
+        animation: sidenav-open-animation 0s forwards;
+    }
+
+    #sidenav::before {
+        display: none;
+    }
+
+    .anchor-wrapper.selected {
+        width: 100%;
+    }
+}
