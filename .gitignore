@@ -10,4 +10,5 @@
 
 # LOCAL CONFIGS
 /php/connection.php
+/php/proxy.php
 .htaccess
