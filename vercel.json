@@ -1,0 +1,47 @@
+{
+    "rewrites": [
+        {
+            "source": "/:path(.*)",
+            "has": [
+                {
+                    "type": "filesystem",
+                    "negate": true
+                }
+            ],
+            "destination": "/views/:path.html"
+        },
+        {
+            "source": "/:path",
+            "destination": "/:path.php"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/:path*.css",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        },
+        {
+            "source": "/:path*.js",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        },
+        {
+            "source": "/index.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store"
+                }
+            ]
+        }
+    ]
+}
