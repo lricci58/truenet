@@ -1,23 +1,11 @@
 {
     "rewrites": [
         {
-            "source": "/:path(.*)",
-            "has": [
-                {
-                    "type": "filesystem",
-                    "negate": true
-                }
-            ],
+            "source": "/:path",
             "destination": "/views/:path.html"
         },
         {
-            "source": "/:path(.*)",
-            "has": [
-                {
-                    "type": "filesystem",
-                    "negate": true
-                }
-            ],
+            "source": "/:path",
             "destination": "/:path.php"
         }
     ]
