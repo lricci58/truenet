@@ -28,13 +28,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // document.getElementById('sidenav').innerHTML = result['side_nav'];
         // document.getElementById('footer').innerHTML = result['footer'];
 
-        checkActiveTab();
+        // checkActiveTab();
 
-        const burgerIcon = document.getElementById('topnav-burger');
-        burgerIcon.addEventListener('mousedown', function () { sidenavOpen(); });
+        // const burgerIcon = document.getElementById('topnav-burger');
+        // burgerIcon.addEventListener('mousedown', function () { sidenavOpen(); });
 
-        const notificationIcon = document.getElementById('topnav-notification');
-        notificationIcon.addEventListener('mousedown', function () { notificationPopupOpen(); });
+        // const notificationIcon = document.getElementById('topnav-notification');
+        // notificationIcon.addEventListener('mousedown', function () { notificationPopupOpen(); });
 
         documentChecker.setReady();
     });
